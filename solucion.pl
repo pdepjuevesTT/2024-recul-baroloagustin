@@ -61,14 +61,5 @@ cotiza(julian,14000).
 cotiza(vale,95000).
 cotiza(fer,60000).
 
-comprarProps(Persona, Plata, Cantidad) :-
-    findall(Precio, (cotiza(_, Precio), Plata >= Precio), PreciosPosibles).
-
-comprarProps(Persona,Plata):-
-    cotiza(Persona,Precio),
-    %forall
-    sePuedeComprar(Persona,Plata).
-
-sePuedeComprar(Persona,Plata):-
-    cotiza(Persona,Precio),
-    Plata >= Precio.
+comprarProps(Plata, ListaProps):-
+    findall((Persona, Precio, Cambio),(cotiza(Persona, Precio),Plata >= Precio,Cambio is Plata - Precio),ListaProps).
