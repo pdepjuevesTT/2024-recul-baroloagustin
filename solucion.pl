@@ -61,14 +61,14 @@ cotiza(julian,140000).
 cotiza(vale,95000).
 cotiza(fer,60000).
 
-% Punto 4: saber qué casas podríamos comprar con una determinada cantidad de plata y cuánta plata nos quedaría
-comprarProps(Plata, SublistasFiltradas, PlataRestante):-
+% comprarProps(Plata, MejorSublista, PlataRestante).
+comprarProps(Plata, MejorSublista, PlataRestante):-
     sePuedeComprar(Plata, ListaProps),
     findall(Sublista, sublista(ListaProps, Sublista), TodasSublistas),
     filtrarSublistas(Plata, TodasSublistas, SublistasFiltradas),
-    member(MejorSublista, SublistasFiltradas),
-    sumarPrecios(MejorSublista, Suma),
+    maximizarUso(Plata, SublistasFiltradas, MejorSublista, Suma),
     PlataRestante is Plata - Suma.
+
 
 %sePuedeComprar(Plata, ListaProps).
 sePuedeComprar(Plata, ListaProps):-
@@ -94,5 +94,13 @@ filtrarSublistas(Plata, [Sublista|Colas], [Sublista|Filtradas]):-
     filtrarSublistas(Plata, Colas, Filtradas).
 filtrarSublistas(Plata, [_|Colas], Filtradas):-
     filtrarSublistas(Plata, Colas, Filtradas).
+
+% Encontrar la sublista que maximiza el uso del dinero disponible
+maximizarUso(_, [], [], 0).
+maximizarUso(Plata, [Sublista|Colas], MejorSublista, MejorSuma):-
+    sumarPrecios(Sublista, Suma),
+    maximizarUso(Plata, Colas, MejorSublistaColas, MejorSumaColas),
+    (Suma > MejorSumaColas -> (MejorSublista = Sublista, MejorSuma = Suma) ; (MejorSublista = MejorSublistaColas, MejorSuma = MejorSumaColas)).
+
 
 
