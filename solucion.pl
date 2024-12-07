@@ -52,14 +52,47 @@ propBarata(Persona):-
 propBarata(Persona):-
     casa(Persona,Metros),
     Metros < 90.
-%punto 4 tasacion que props se puede comprar con una cantidad dada de plata y cuanto nos quedaria
+%punto 4 saber que casas podriamos comprar con una determinada cantidad de plata y cuanta plata nos quedaria. Queresmo comprar al menos una propiedad 
 %cotiza(Persona,Precio)
 cotiza(juan,150000).
 cotiza(nico,80000).
 cotiza(alf,75000).
-cotiza(julian,14000).
+cotiza(julian,140000).
 cotiza(vale,95000).
 cotiza(fer,60000).
 
-comprarProps(Plata, ListaProps):-
-    findall((Persona, Precio, Cambio),(cotiza(Persona, Precio),Plata >= Precio,Cambio is Plata - Precio),ListaProps).
+% Punto 4: saber qué casas podríamos comprar con una determinada cantidad de plata y cuánta plata nos quedaría
+comprarProps(Plata, SublistasFiltradas, PlataRestante):-
+    sePuedeComprar(Plata, ListaProps),
+    findall(Sublista, sublista(ListaProps, Sublista), TodasSublistas),
+    filtrarSublistas(Plata, TodasSublistas, SublistasFiltradas),
+    member(MejorSublista, SublistasFiltradas),
+    sumarPrecios(MejorSublista, Suma),
+    PlataRestante is Plata - Suma.
+
+%sePuedeComprar(Plata, ListaProps).
+sePuedeComprar(Plata, ListaProps):-
+    findall((Persona, Precio), (cotiza(Persona, Precio), Plata >= Precio), ListaProps).
+
+sublista([], []).
+sublista([_|Cola], Sublista):-
+    sublista(Cola, Sublista).
+sublista([Cabeza|Cola], [Cabeza|Sublista]):-
+    sublista(Cola, Sublista).
+
+% Sumar los precios de una lista de propiedades
+sumarPrecios([], 0).
+sumarPrecios([(_, Precio)|Cola], Suma):-
+    sumarPrecios(Cola, SumaCola),
+    Suma is Precio + SumaCola.
+
+% Filtrar las sublistas que se pueden comprar con el dinero disponible
+filtrarSublistas(_, [], []).
+filtrarSublistas(Plata, [Sublista|Colas], [Sublista|Filtradas]):-
+    sumarPrecios(Sublista, Suma),
+    Suma =< Plata,
+    filtrarSublistas(Plata, Colas, Filtradas).
+filtrarSublistas(Plata, [_|Colas], Filtradas):-
+    filtrarSublistas(Plata, Colas, Filtradas).
+
+
